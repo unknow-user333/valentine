@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine? 💕</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Quicksand:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --pink-light: #FFE5EC;
+            --pink-medium: #FFB3C6;
+            --pink-deep: #FF6B9D;
+            --red-heart: #C9184A;
+            --purple-deep: #590D22;
+            --cream: #FFF0F3;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, var(--pink-light) 0%, var(--cream) 50%, #FFD6E8 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Floating hearts background animation */
+        .hearts-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .heart-float {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0;
+            animation: floatUp 8s infinite ease-in;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(0deg);
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 60px rgba(201, 24, 74, 0.2);
+            width: 100%;
+            transform: scale(0.9);
+            opacity: 0;
+            animation: scaleIn 0.6s forwards;
+            border: 3px solid var(--pink-medium);
+        }
+
+        @keyframes scaleIn {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em;
+            color: var(--red-heart);
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(201, 24, 74, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--purple-deep);
+            font-size: 1.1em;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .question-container {
+            display: none;
+            animation: fadeSlideIn 0.5s ease-out;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-number {
+            color: var(--pink-deep);
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        .question-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--purple-deep);
+            margin-bottom: 30px;
+            line-height: 1.4;
+            font-weight: 700;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: linear-gradient(135deg, var(--pink-light) 0%, #FFE5F0 100%);
+            border: 2px solid var(--pink-medium);
+            border-radius: 20px;
+            padding: 20px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--purple-deep);
+            font-weight: 400;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            transition: left 0.5s;
+        }
+
+        .option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(201, 24, 74, 0.2);
+            border-color: var(--pink-deep);
+        }
+
+        .option:hover::before {
+            left: 100%;
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, var(--pink-deep) 0%, var(--red-heart) 100%);
+            color: white;
+            border-color: var(--red-heart);
+            transform: scale(1.02);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--pink-light);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--pink-deep), var(--red-heart));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--pink-deep) 0%, var(--red-heart) 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+            box-shadow: 0 5px 15px rgba(201, 24, 74, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(201, 24, 74, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .final-question {
+            display: none;
+            text-align: center;
+        }
+
+        .final-question.active {
+            display: block;
+            animation: heartBeat 0.8s ease-out;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1.05); }
+            75% { transform: scale(1.15); }
+        }
+
+        .big-question {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em;
+            color: var(--red-heart);
+            margin: 30px 0;
+            font-weight: 900;
+            line-height: 1.3;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .big-heart {
+            font-size: 5em;
+            animation: heartbeat 1.5s infinite;
+            display: inline-block;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            10%, 30% { transform: scale(0.9); }
+            20%, 40% { transform: scale(1.1); }
+        }
+
+        .answer-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .yes-button {
+            background: linear-gradient(135deg, #00D084 0%, #00B872 100%);
+            font-size: 1.3em;
+            padding: 20px 50px;
+            animation: wiggle 0.5s infinite;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .yes-button:hover {
+            animation: none;
+            transform: scale(1.1);
+        }
+
+        .no-button {
+            background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+            font-size: 1em;
+            padding: 12px 30px;
+            position: relative;
+        }
+
+        .celebration {
+            display: none;
+            text-align: center;
+        }
+
+        .celebration.active {
+            display: block;
+            animation: fadeSlideIn 0.8s ease-out;
+        }
+
+        .celebration-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: var(--red-heart);
+            margin: 30px 0;
+            font-weight: 900;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            z-index: 9999;
+            animation: confettiFall 3s linear;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .intro-screen {
+            text-align: center;
+        }
+
+        .intro-screen.hidden {
+            display: none;
+        }
+
+        .start-button {
+            margin-top: 30px;
+            font-size: 1.3em;
+            padding: 20px 50px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .romantic-message {
+            font-size: 1.2em;
+            color: var(--purple-deep);
+            margin: 20px 0;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .response-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(201, 24, 74, 0.4);
+            z-index: 1000;
+            text-align: center;
+            max-width: 400px;
+            border: 3px solid var(--pink-deep);
+        }
+
+        .response-popup.show {
+            animation: popupAppear 0.5s forwards;
+        }
+
+        @keyframes popupAppear {
+            0% {
+                transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1) rotate(10deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .response-popup.hide {
+            animation: popupDisappear 0.4s forwards;
+        }
+
+        @keyframes popupDisappear {
+            to {
+                transform: translate(-50%, -50%) scale(0) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        .popup-emoji {
+            font-size: 3em;
+            margin-bottom: 15px;
+            animation: spin 0.6s ease-out;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg) scale(0); }
+            to { transform: rotate(360deg) scale(1); }
+        }
+
+        .popup-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            color: var(--red-heart);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .popup-subtext {
+            color: var(--purple-deep);
+            font-size: 1em;
+            font-style: italic;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="response-popup" id="responsePopup">
+        <div class="popup-emoji" id="popupEmoji">💕</div>
+        <div class="popup-text" id="popupText">Aww, that's sweet!</div>
+        <div class="popup-subtext" id="popupSubtext">You know me so well 💖</div>
+    </div>
+
+    <div class="hearts-bg" id="heartsBackground"></div>
+    
+    <div class="container">
+        <div class="quiz-card">
+            <!-- Intro Screen -->
+            <div class="intro-screen" id="introScreen">
+                <h1>💕 Our Love Story Quiz 💕</h1>
+                <p class="subtitle">Let's take a journey through our memories together...</p>
+                <div class="big-heart">❤️</div>
+                <p class="romantic-message">
+                    Before I ask you something special, let's reminisce about the beautiful moments we've shared.
+                </p>
+                <button class="start-button" onclick="startQuiz()">Begin Our Journey ✨</button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar" id="progressBar" style="display: none;">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <!-- Question 1 -->
+            <div class="question-container" id="q1">
+                <div class="question-number">QUESTION 1 OF 5</div>
+                <h2 class="question-text">What was the first thing you noticed about me?</h2>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, 1)">Your amazing smile that lights up the room</div>
+                    <div class="option" onclick="selectOption(this, 1)">Your kind and caring personality</div>
+                    <div class="option" onclick="selectOption(this, 1)">Your sense of humor that makes me laugh</div>
+                    <div class="option" onclick="selectOption(this, 1)">Those beautiful eyes I could get lost in</div>
+                </div>
+                <div class="button-container">
+                    <button onclick="nextQuestion(1)" id="next1" disabled>Next Question →</button>
+                </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-container" id="q2">
+                <div class="question-number">QUESTION 2 OF 5</div>
+                <h2 class="question-text">What's our favorite thing to do together?</h2>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, 2)">Having deep conversations for hours</div>
+                    <div class="option" onclick="selectOption(this, 2)">Going on adventures and trying new things</div>
+                    <div class="option" onclick="selectOption(this, 2)">Just being together, doing nothing special</div>
+                    <div class="option" onclick="selectOption(this, 2)">Making each other laugh until our sides hurt</div>
+                </div>
+                <div class="button-container">
+                    <button onclick="nextQuestion(2)" id="next2" disabled>Next Question →</button>
+                </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question-container" id="q3">
+                <div class="question-number">QUESTION 3 OF 5</div>
+                <h2 class="question-text">What song reminds you of us?</h2>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, 3)">A romantic classic that never gets old</div>
+                    <div class="option" onclick="selectOption(this, 3)">That song we danced to together</div>
+                    <div class="option" onclick="selectOption(this, 3)">The one you always sing along to</div>
+                    <div class="option" onclick="selectOption(this, 3)">Our own special song that means the world</div>
+                </div>
+                <div class="button-container">
+                    <button onclick="nextQuestion(3)" id="next3" disabled>Next Question →</button>
+                </div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question-container" id="q4">
+                <div class="question-number">QUESTION 4 OF 5</div>
+                <h2 class="question-text">What's my favorite thing about you?</h2>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, 4)">How you always know how to make me feel better</div>
+                    <div class="option" onclick="selectOption(this, 4)">Your incredible strength and confidence</div>
+                    <div class="option" onclick="selectOption(this, 4)">The way you understand me like no one else</div>
+                    <div class="option" onclick="selectOption(this, 4)">Everything - I could never choose just one thing!</div>
+                </div>
+                <div class="button-container">
+                    <button onclick="nextQuestion(4)" id="next4" disabled>Next Question →</button>
+                </div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="question-container" id="q5">
+                <div class="question-number">QUESTION 5 OF 5</div>
+                <h2 class="question-text">How do you feel when we're together?</h2>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, 5)">Like I'm home, safe and loved</div>
+                    <div class="option" onclick="selectOption(this, 5)">Happier than I've ever been</div>
+                    <div class="option" onclick="selectOption(this, 5)">Like the luckiest person in the world</div>
+                    <div class="option" onclick="selectOption(this, 5)">Complete, like you're my missing piece</div>
+                </div>
+                <div class="button-container">
+                    <button onclick="showFinalQuestion()" id="next5" disabled>See What Comes Next... 💕</button>
+                </div>
+            </div>
+
+            <!-- Final Question -->
+            <div class="final-question" id="finalQuestion">
+                <div class="big-heart">💖</div>
+                <h2 class="big-question">Will You Be My Valentine?</h2>
+                <p class="romantic-message">
+                    Every moment with you is a treasure. You make my world brighter, 
+                    my heart fuller, and my life infinitely better. So here's the question 
+                    I've been dying to ask...
+                </p>
+                <div class="answer-buttons">
+                    <button class="yes-button" onclick="sayYes()">YES! 💕</button>
+                    <button class="no-button" onclick="tryToEscape(this)" id="noButton">Maybe not...</button>
+                </div>
+            </div>
+
+            <!-- Celebration -->
+            <div class="celebration" id="celebration">
+                <div class="big-heart">💖✨💖</div>
+                <h2 class="celebration-text">To my Karthika 💕</h2>
+                <p class="romantic-message">
+                    Four years with you, and I still get butterflies every time I see you smile
+                    You're my favorite person, my best friend, and my Love! 
+                    I can't wait to make more amazing memories together. 💕
+                </p>
+                <div class="big-heart">💝</div>
+                <p style="margin-top: 30px; font-size: 1.3em; color: var(--red-heart); font-weight: 600;">
+                    I LOVE YOU, to my madam! 💕
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating hearts background
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('heartsBackground');
+            const hearts = ['💕', '💖', '💗', '💓', '💝', '❤️', '💘'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart-float';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                heart.style.animationDuration = (Math.random() * 3 + 6) + 's';
+                heart.style.animationDelay = Math.random() * 2 + 's';
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => heart.remove(), 10000);
+            }, 500);
+        }
+
+        createFloatingHearts();
+
+        let currentQuestion = 0;
+        const answers = {};
+        let noButtonClicks = 0;
+
+        const questionResponses = {
+            1: [
+                { emoji: '🥰', text: 'Aww, that melts my heart!', subtext: 'You noticed the best parts of me' },
+                { emoji: '😍', text: 'You really saw me!', subtext: 'That means the world to me' },
+                { emoji: '💕', text: 'That\'s so sweet!', subtext: 'I love that you remember' },
+                { emoji: '✨', text: 'You know me so well!', subtext: 'That\'s exactly right' }
+            ],
+            2: [
+                { emoji: '🎉', text: 'Those are my favorite moments!', subtext: 'Every second with you is special' },
+                { emoji: '💖', text: 'Yes! That\'s us!', subtext: 'We make the best team' },
+                { emoji: '🌟', text: 'I love doing that with you!', subtext: 'You make everything better' },
+                { emoji: '💫', text: 'Perfect answer!', subtext: 'We have so much fun together' }
+            ],
+            3: [
+                { emoji: '🎵', text: 'That song is magical!', subtext: 'It always makes me think of you' },
+                { emoji: '🎶', text: 'Our song! 💕', subtext: 'I smile every time I hear it' },
+                { emoji: '💝', text: 'Such good taste!', subtext: 'Music sounds better with you' },
+                { emoji: '🎼', text: 'That\'s the one!', subtext: 'It captures us perfectly' }
+            ],
+            4: [
+                { emoji: '😊', text: 'You get me!', subtext: 'That\'s what makes us special' },
+                { emoji: '💗', text: 'Exactly right!', subtext: 'You understand me perfectly' },
+                { emoji: '🥺', text: 'That\'s so thoughtful!', subtext: 'You really pay attention' },
+                { emoji: '💞', text: 'I adore that about you!', subtext: 'You\'re simply the best' }
+            ],
+            5: [
+                { emoji: '❤️', text: 'That\'s beautiful!', subtext: 'I feel the same way about you' },
+                { emoji: '🌹', text: 'You complete me too!', subtext: 'We\'re perfect together' },
+                { emoji: '💖', text: 'My heart is so full!', subtext: 'You\'re my everything' },
+                { emoji: '✨', text: 'That\'s exactly how I feel!', subtext: 'We\'re meant to be' }
+            ]
+        };
+
+        const noButtonTexts = [
+            "Maybe not...",
+            "Wait, think again! 🤔",
+            "Are you sure? 😢",
+            "Please reconsider! 🥺",
+            "Don't break my heart! 💔",
+            "I'll keep asking! 😤",
+            "You can't escape! 😏",
+            "Come on! 🙏",
+            "Pretty please? 🥹",
+            "I won't give up! 💪",
+            "This is your last chance! ⚠️",
+            "PLEASE SAY YES! 😭"
+        ];
+
+        function startQuiz() {
+            document.getElementById('introScreen').classList.add('hidden');
+            document.getElementById('progressBar').style.display = 'block';
+            document.getElementById('q1').classList.add('active');
+            updateProgress();
+        }
+
+        function selectOption(element, questionNum) {
+            const options = element.parentElement.children;
+            for (let option of options) {
+                option.classList.remove('selected');
+            }
+            element.classList.add('selected');
+            answers[questionNum] = element.textContent;
+            document.getElementById('next' + questionNum).disabled = false;
+            
+            // Show response popup
+            showResponsePopup(questionNum);
+        }
+
+        function showResponsePopup(questionNum) {
+            const responses = questionResponses[questionNum];
+            const response = responses[Math.floor(Math.random() * responses.length)];
+            
+            const popup = document.getElementById('responsePopup');
+            const overlay = document.getElementById('overlay');
+            const emoji = document.getElementById('popupEmoji');
+            const text = document.getElementById('popupText');
+            const subtext = document.getElementById('popupSubtext');
+            
+            emoji.textContent = response.emoji;
+            text.textContent = response.text;
+            subtext.textContent = response.subtext;
+            
+            overlay.classList.add('show');
+            popup.classList.remove('hide');
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+                popup.classList.add('hide');
+                setTimeout(() => {
+                    overlay.classList.remove('show');
+                    popup.classList.remove('hide');
+                }, 400);
+            }, 2000);
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / 5) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function nextQuestion(current) {
+            document.getElementById('q' + current).classList.remove('active');
+            if (current < 5) {
+                document.getElementById('q' + (current + 1)).classList.add('active');
+                currentQuestion = current;
+                updateProgress();
+            }
+        }
+
+        function showFinalQuestion() {
+            document.getElementById('q5').classList.remove('active');
+            document.getElementById('progressBar').style.display = 'none';
+            document.getElementById('finalQuestion').classList.add('active');
+        }
+
+        function sayYes() {
+            document.getElementById('finalQuestion').classList.remove('active');
+            document.getElementById('celebration').classList.add('active');
+            
+            // Create confetti
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    const colors = ['#FF6B9D', '#FFB3C6', '#C9184A', '#00D084', '#FFD700', '#FF1493'];
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3500);
+                }, i * 30);
+            }
+        }
+
+        function tryToEscape(button) {
+            noButtonClicks++;
+            
+            // Change button text to be more creative
+            if (noButtonClicks < noButtonTexts.length) {
+                button.textContent = noButtonTexts[noButtonClicks];
+            }
+            
+            // Make button run away
+            const maxX = window.innerWidth - button.offsetWidth - 100;
+            const maxY = window.innerHeight - button.offsetHeight - 100;
+            
+            const randomX = Math.max(50, Math.random() * maxX);
+            const randomY = Math.max(50, Math.random() * maxY);
+            
+            button.style.position = 'fixed';
+            button.style.left = randomX + 'px';
+            button.style.top = randomY + 'px';
+            button.style.transition = 'all 0.3s ease';
+            
+            // Make "Yes" button bigger and more prominent
+            const yesButton = document.querySelector('.yes-button');
+            const currentSize = parseFloat(getComputedStyle(yesButton).fontSize);
+            yesButton.style.fontSize = (currentSize + 2) + 'px';
+            
+            const currentPadding = parseInt(getComputedStyle(yesButton).paddingTop);
+            yesButton.style.padding = (currentPadding + 2) + 'px ' + (currentPadding * 2.5 + 5) + 'px';
+            
+            // After several clicks, make the button smaller and harder to click
+            if (noButtonClicks > 3) {
+                const newSize = Math.max(0.6, 1 - (noButtonClicks * 0.08));
+                button.style.transform = `scale(${newSize})`;
+            }
+            
+            // After many clicks, make it move on hover
+            if (noButtonClicks > 5) {
+                button.onmouseover = function() {
+                    const newX = Math.max(50, Math.random() * maxX);
+                    const newY = Math.max(50, Math.random() * maxY);
+                    this.style.left = newX + 'px';
+                    this.style.top = newY + 'px';
+                };
+            }
+            
+            // After too many clicks, hide it temporarily and show a message
+            if (noButtonClicks > 8) {
+                button.style.opacity = '0';
+                const yesButton = document.querySelector('.yes-button');
+                yesButton.textContent = '💕 YOU KNOW YOU WANT TO SAY YES! 💕';
+                yesButton.style.animation = 'wiggle 0.3s infinite, pulse 1s infinite';
+                
+                setTimeout(() => {
+                    button.style.opacity = '1';
+                    button.textContent = '🏃‍♂️ Still running!';
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+</html>
